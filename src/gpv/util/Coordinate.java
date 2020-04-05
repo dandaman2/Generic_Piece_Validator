@@ -127,8 +127,8 @@ public class Coordinate extends Point
 
 	/**
 	 * Returns a boolean as to whether a valid horizontal move can
-	 * be made from the give coordinate to the input coordinate.
-	 * @param coordinate
+	 * be made from the given coordinate to the input coordinate.
+	 * @param coordinate the input coordinate to check
 	 * @return True if a valid move can be made, False if the input coordinate is not on the same horizontal plane,
 	 * or there are other pieces in the way.
 	 */
@@ -150,5 +150,16 @@ public class Coordinate extends Point
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Returns a boolean as to whether a valid vertical move can
+	 * be made from the given coordinate to the input coordinate.
+	 * @param coordinate the input coordinate to check
+	 * @return True if a valid move can be made, False if the input coordinate is not on the same vertical plane,
+	 * or there are other pieces in the way.
+	 */
+	public boolean validVertMove(Coordinate coordinate, Board board){
+		return false;
 	}
 }

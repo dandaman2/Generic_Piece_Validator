@@ -94,7 +94,7 @@ class CoordinateTests {
     }
 
 
-    //Valid Horizontal Movement Tests
+    //Valid Horizontal Movement Tests//////////////////////////////////////////////////////////////////
 
     //Test to make sure horizontal movement is working for a given direction
     @Test
@@ -128,5 +128,41 @@ class CoordinateTests {
         ChessPiece bp = factory.makePiece(BLACKPAWN);
         board.putPieceAt(bp, makeCoordinate(5, 7));
         assertFalse(makeCoordinate(5, 8).validHorizMove(makeCoordinate(5, 5), board));
+    }
+
+    //Valid Vertical Movement Tests//////////////////////////////////////////////////////////////////
+
+    //Test to make sure vertical movement is working for a given direction
+    @Test
+    void validVertMoveWay1(){
+        assertTrue(makeCoordinate(3, 1).validVertMove(makeCoordinate(5, 1), board));
+    }
+
+    //Test to make sure vertical movement is working for the opposite direction
+    @Test
+    void validVertMoveWay2(){
+        assertTrue(makeCoordinate(5, 1).validVertMove(makeCoordinate(3, 1), board));
+    }
+
+    //Test to make sure horizontal movement does not pass for changes in row
+    @Test
+    void invalidVertMove(){
+        assertFalse(makeCoordinate(3, 1).validVertMove(makeCoordinate(3, 2), board));
+    }
+
+    //Test to make sure horizontal movement does not pass if a piece is in the way
+    @Test
+    void inTheWayVertMoveWay1(){
+        ChessPiece bp = factory.makePiece(BLACKPAWN);
+        board.putPieceAt(bp, makeCoordinate(7, 5));
+        assertFalse(makeCoordinate(5, 5).validVertMove(makeCoordinate(8, 5), board));
+    }
+
+    //Test to make sure horizontal movement does not pass if a piece is in the way going the opposite direction
+    @Test
+    void inTheWayVertMoveWay2(){
+        ChessPiece bp = factory.makePiece(BLACKPAWN);
+        board.putPieceAt(bp, makeCoordinate(7, 5));
+        assertFalse(makeCoordinate(8, 5).validVertMove(makeCoordinate(5, 5), board));
     }
 }

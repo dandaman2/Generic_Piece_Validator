@@ -1,0 +1,138 @@
+
+* = Defined/Written in alternate location
+
+Original Items=================================
+X Create a chesspiece.
+X Create one of each pieces
+X Place one piece on the board
+X Place multiple pieces on the board
+X Add hasMoved
+X Make any move fails
+
+Valid Move Implementation=======================
+
+0.Pawn:
+ Deriving From: White_Pawn(2, 1) -> (3, 1): True
+    > Must be in-bounds - isInBounds* (For All)
+    > Must Move Position - hasMoved* (For All)
+    > Moves forward a single space
+        > 3. Forward once && Can move ahead twice if hasn't moved yet (White)
+            White_Pawn(5, 5) -> (6, 5): True // Forwards-1
+            White_Pawn(5, 5) -> (5, 6): False // Sideways
+            White_Pawn(5, 5) -> (6, 6): False // Diagonal without capture
+            White_Pawn(5, 5) -> (7, 5): False // Forward-2 Non-start
+            White_Pawn(2, 1) -> (4, 1): True // Forward-2 Start
+            White_Pawn(2, 1) -> (5, 1): False // Forward-3 start
+        > 4. Different direction based on color (Color-Dependent)
+            Black_Pawn(7, 1) -> (6, 1): True // Forwards (down) one
+            White_Pawn(7, 1) -> (6, 1): False // White pawn wrong direction
+            Black_Pawn(7, 1) -> (5, 1): True // Forwards (down) two
+            Black_Pawn(7, 1) -> (5, 1): False // Forwards (down) two but moved
+            Black_Pawn(6, 1) -> (7, 1): False // Black moving upwards one
+            Black_Pawn(6, 1) ->(8, 1): False // Black moving upwards 2 from start
+        > 5. Can only go forward if not pieces in the way
+            White_Pawn(2, 1) -> Black_Pawn(3, 1): False
+            White_Pawn(2, 1) -> (3, 1): True
+        > 7. Can capture Diagonally
+            > must be an enemy piece - diffColorAt*
+            Black_Pawn(5, 5) -> White_Pawn(4, 4): True // Proper capture
+            Black_Pawn(5, 5) -> White_Pawn(4, 6): True // Proper capture
+            White_Pawn(4, 4) -> Black_Pawn(5, 5): True // Proper capture
+            White_Pawn(4, 6) -> Black_Pawn(5, 5): True // Proper capture
+            White_Pawn(5, 5) -> Black_Pawn(4, 4): False // White Backwards capture
+            Black_Pawn(4, 4) -> White_Pawn(5, 5): False // Black Backwards capture
+            Black_Pawn(5, 5) -> Black_Pawn(4, 4): False // Same-Team piece there
+
+9. King
+    Deriving From: White_King(1, 5) -> (2, 5)
+        > 13. Can move one space in any direction (if space is empty or enemy piece)
+            > Cannot move onto any same-color piece  - sameColorAt* (For All)
+            > 11. Refactor with diffColorAt
+            > 12. Set up testing to use a stream of possible values
+            > White_King(5, 5) -> (5+-1, 5,+-1): True
+            > White_King(5, 5) -> (7, 5): False
+            > White_King(5, 5) -> Black_Pawn(4, 4): True
+            > White_King(5, 5) -> Black_Pawn(4, 5: True
+        > 15. Castling if king or respective rook has not moved and nothing in the way
+            > Horizontal movement with nothing in the way - validHorizMove(coordinate)*
+            White_King(1, 5) -> (1, 7): True // Castling one way
+                White_Rook(1, 8)
+            White_King(1, 5) -> (1, 3): True // Castling the other way
+                White_Rook(1, 1)
+            White_King(1, 5) -> (1, 7): False // Castling but no rook
+            White_King(1, 5) -> (1, 3): False // Castling but no rook
+            White_King(2, 5) -> (2, 3): False // King has been moved
+            White_King(1, 5) -> (1, 7): False // Rook has moved
+                White_Rook(1, 8) (moved)
+            Black_King(8, 5) -> (8, 7): True // Castling one way with black
+                Black_Rook(8, 8)
+            Black_King(8, 5) -> (8, 3): True // Castling other way with black
+                 Black_Rook(8, 1)
+
+16. Rook
+    Deriving From: White_Rook(3, 8) -> White_Rook(8, 8)
+        > Can move in both vertical and horizontal directions
+            > 17. Horizontal (use existing)-> validHorizMove*
+            White_Rook(1, 1) -> (1, 7): True // valid horizontal move one way
+            White_Rook(1, 7) -> (1, 1): True // valid horizontal move another way
+            White_Rook(2, 1) -> (2, 7): False // invalid because of piece in the way
+                White_Pawn(2, 4)
+            White_Rook(2, 7) -> (2, 1): False // invalid because of piece in the way
+                White_Pawn(2, 4)
+            White_Rook(2, 7) -> (3, 3): False //invalid movement
+            > Vertical Move - validVertMove*
+            White_Rook(1, 1) -> (7, 1): True // valid vertical move one way
+            White_Rook(7, 1) -> (1, 1): True // valid vertical move another way
+            White_Rook(1, 4) -> (7, 4): False // invalid because of piece in the way
+                White_Pawn(2, 4)
+            White_Rook(7, 4) -> (1, 4): False // invalid because of piece in the way
+                White_Pawn(2, 4)
+
+
+Coordinate Functions=============================
+    1. isInBounds(board)================ (used prior to any called method used in canMove)
+        (2, 1).isInBounds(board): True
+        (1, 8).isInBounds(board): True
+        (0, 2).isInBounds(board): False
+        (3, 0).isInBounds(board): False
+        (9, 1).isInBounds(board): False
+        (5, 11).isInBounds(board): False
+
+    2. differentLocation(coordinate)============================
+        (2, 1).differentLocation(3, 1): True
+        (2, 1).differentLocation(2, 1): False
+
+    14. validHorizMove(coordinate, board)========================
+        (3, 1).validHorizMove((3, 8), board): True // Same Row one way
+        (3, 8).validHorizMove((3, 1), board): True // Same Row other way
+        (3, 1).validHorizMove((4, 1), board): False // Different Row
+        (5, 5).validHorizMove((5, 8), board): False //Piece in the way increasing
+            Black_Pawn(5, 7)
+         (5, 8).validHorizMove((5, 5), board): False //Piece in the way decreasing
+            Black_Pawn(5, 7)
+
+    18. validVertMove(coordinate, board)============================
+        (3, 1).validVertMove((5, 1), board): True // Same Col one way
+        (5, 1).validVertMove((3, 1), board): True // Same Col other way
+        (3, 1).validVertMove((3, 2), board): False // Different Col
+        (5, 5).validVertMove((8, 5), board) : False //Piece in the way increasing
+            Black_Pawn(7, 5)
+        (8, 5).validVertMove((5, 5), board) : False //Piece in the way decreasing
+            Black_Pawn(7, 5)
+
+
+ChessPiece Functions==================================
+    6. diffColorAt(coordinate, board)=========
+        Black_Pawn(5, 5).diffColorAt(coordinate::White_Pawn(4, 5), board): True
+        Black_Pawn(5, 5).diffColorAt(coordinate::Black_Pawn(4, 5). board): False
+        Black_Pawn(5, 5).diffColorAt((4, 5), board): False
+
+    10. sameColorAt(coordinate, board)===========
+        Black_Pawn(5, 5).sameColorAt(coordinate::White_Pawn(4, 5), board): False
+        Black_Pawn(5, 5).sameColorAt(coordinate::Black_Pawn(4, 5). board): True
+        Black_Pawn(5, 5).sameColorAt((4, 5), board): False
+
+
+
+
+
