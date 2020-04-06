@@ -456,6 +456,30 @@ class ChessPieceTests
 		assertFalse(wk.canMove(makeCoordinate(1, 5), makeCoordinate(1, 7), board));
 	}
 
+	//Castling white higher-rank direction with intercepting piece
+	@Test
+	void pieceInWayWhiteCastlingWay1() {
+		ChessPiece wk = factory.makePiece(WHITEKING);
+		board.putPieceAt(wk, makeCoordinate(1, 5));
+		ChessPiece wr = factory.makePiece(WHITEROOK);
+		board.putPieceAt(wr, makeCoordinate(1, 8));
+		ChessPiece wb = factory.makePiece(WHITEBISHOP);
+		board.putPieceAt(wb, makeCoordinate(1, 6));
+		assertFalse(wk.canMove(makeCoordinate(1, 5), makeCoordinate(1, 7), board));
+	}
+
+	//Castling white lower-rank direction with intercepting piece
+	@Test
+	void pieceInWayWhiteCastlingWay2() {
+		ChessPiece wk = factory.makePiece(WHITEKING);
+		board.putPieceAt(wk, makeCoordinate(1, 5));
+		ChessPiece wr = factory.makePiece(WHITEROOK);
+		board.putPieceAt(wr, makeCoordinate(1, 1));
+		ChessPiece wb = factory.makePiece(WHITEBISHOP);
+		board.putPieceAt(wb, makeCoordinate(1, 4));
+		assertFalse(wk.canMove(makeCoordinate(1, 5), makeCoordinate(1, 3), board));
+	}
+
 	//Castling towards the higher-rank rook
 	@Test
 	void blackCastlingWay1() {
@@ -476,6 +500,30 @@ class ChessPieceTests
 		assertTrue(bk.canMove(makeCoordinate(8, 5), makeCoordinate(8, 3), board));
 	}
 
+	//Castling black higher-rank direction with intercepting piece
+	@Test
+	void pieceInWayBlackCastlingWay1() {
+
+		ChessPiece bk = factory.makePiece(BLACKKING);
+		board.putPieceAt(bk, makeCoordinate(8, 5));
+		ChessPiece br = factory.makePiece(BLACKROOK);
+		board.putPieceAt(br, makeCoordinate(8, 8));
+		ChessPiece bb = factory.makePiece(BLACKBISHOP);
+		board.putPieceAt(bb, makeCoordinate(8, 8));
+		assertFalse(bk.canMove(makeCoordinate(8, 5), makeCoordinate(8, 7), board));
+	}
+
+	//Castling black lower-rank direction with intercepting piece
+	@Test
+	void pieceInWayBlackCastlingWay2() {
+		ChessPiece bk = factory.makePiece(BLACKKING);
+		board.putPieceAt(bk, makeCoordinate(8, 5));
+		ChessPiece br = factory.makePiece(BLACKROOK);
+		board.putPieceAt(br, makeCoordinate(8, 1));
+		ChessPiece bb = factory.makePiece(BLACKKNIGHT);
+		board.putPieceAt(bb, makeCoordinate(8, 2));
+		assertFalse(bk.canMove(makeCoordinate(8, 5), makeCoordinate(8, 3), board));
+	}
 
 	//Tests for Rook//////////////////////////////////////////////////////////////////////
 
@@ -536,7 +584,7 @@ class ChessPieceTests
 	@Test
 	void validVertRook2() {
 		ChessPiece wr= factory.makePiece(WHITEROOK);
-		board.putPieceAt (wr, makeCoordinate(7, 7));
+		board.putPieceAt (wr, makeCoordinate(7, 1));
 		assertTrue(wr.canMove(makeCoordinate(7, 1), makeCoordinate(1, 1), board));
 	}
 
@@ -763,5 +811,41 @@ class ChessPieceTests
 		board.putPieceAt (wk, makeCoordinate(5, 5));
 		assertFalse(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
 	}
+
+	//Bad Input Tests//////////////////////////////////////////////////////////////////
+
+	//Valid canMove input
+	@Test
+	void validCanMoveInput() {
+		ChessPiece wk= factory.makePiece(WHITEKING);
+		board.putPieceAt (wk, makeCoordinate(6, 6));
+		assertTrue(wk.canMove(makeCoordinate(6, 6), makeCoordinate(7, 7), board));
+	}
+
+	//Invalid canMove input because the piece being moved is not at the specified location
+	@Test
+	void notThereInvalidCanMoveInput() {
+		ChessPiece wk= factory.makePiece(WHITEKING);
+		board.putPieceAt (wk, makeCoordinate(5, 5));
+		assertFalse(wk.canMove(makeCoordinate(6, 6), makeCoordinate(7, 7), board));
+	}
+
+	//Invalid canMove input because a different piece is at the location of the moving piece
+	@Test
+	void diffPieceInvalidCanMoveInput() {
+		ChessPiece wk= factory.makePiece(WHITEKING);
+		board.putPieceAt (wk, makeCoordinate(6, 7));
+		ChessPiece wb= factory.makePiece(WHITEBISHOP);
+		board.putPieceAt (wb, makeCoordinate(6, 6));
+		assertFalse(wk.canMove(makeCoordinate(6, 6), makeCoordinate(7, 7), board));
+	}
+
+	//Invalid canMove input because a different piece is at the location of the moving piece
+	@Test
+	void notOnBoardInvalidCanMoveInput() {
+		ChessPiece wk= factory.makePiece(WHITEKING);
+		assertFalse(wk.canMove(makeCoordinate(1, 5), makeCoordinate(2, 5), board));
+	}
+
 
 }

@@ -71,72 +71,17 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 	@Override
 	public boolean canMove(Coordinate from, Coordinate to, Board b)
 	{
+		//Make sure input is valid (piece at 'from' is the same as the current piece)
+		if(((ChessPiece)b.getPieceAt(from))== null ||
+				((ChessPiece)b.getPieceAt(from)).getName() != this.getName() ||
+				((ChessPiece)b.getPieceAt(from)).getColor() != this.getColor())
+			return false;
+
+		//Make sure locations are valid
 		if(!to.isInBounds(b) || !from.differentLocation(to) || this.sameColorAt(to, b))
 			return false;
 
-		switch(this.getName()){
-
-			case KNIGHT:
-				return (Math.abs(from.getColumn() - to.getColumn()) == 1 && Math.abs(from.getRow() - to.getRow())== 2)||
-						(Math.abs(from.getColumn() - to.getColumn()) == 2 && Math.abs(from.getRow() - to.getRow()) == 1);
-
-			case QUEEN:
-				//can move diagonally, vertically or horizontally
-				return validDiagMove(from, to, b) || validVertMove(from, to, b) || validHorizMove(from, to, b);
-
-			case BISHOP:
-				//can move diagonally
-				return validDiagMove(from, to, b);
-
-			case ROOK:
-				//can move horizontally or vertically
-				return validVertMove(from, to, b) || validHorizMove(from, to, b);
-
-			case KING:
-				//check if castling attempt
-				if(validHorizMove(from, to, b) && Math.abs(from.getColumn()-to.getColumn()) == 2){
-					//get the column location of where the rook should be based on the direction of castling
-					int rookCol = (to.getColumn() < from.getColumn())? 1 : b.getnColumns();
-					ChessPiece closeRook = (ChessPiece)b.getPieceAt(Coordinate.makeCoordinate(to.getRow(), rookCol));
-					//if space is empty, return false
-					if(closeRook == null){
-						return false;
-					}
-					//check if Rook or king has moved
-					return(closeRook.getName() == ROOK && !closeRook.hasMoved() && !this.hasMoved());
-
-				}
-				return Math.abs(to.getColumn() - from.getColumn()) < 2 && Math.abs(to.getRow() - from.getRow()) < 2;
-
-			case PAWN:
-				int difference = (this.getColor() == WHITE)? 1 : -1;
-
-				//If not capturing
-				if(to.getColumn() == from.getColumn()) {
-
-					//Cannot go forwards one if piece is blocking it
-					if(b.getPieceAt(to) != null)
-						return false;
-
-					//Move forwards one
-					if (to.getRow() - from.getRow() == difference) {
-						return true;
-					}
-					//Move forwards two if not previously moved
-					return !this.hasMoved() && (to.getRow() - from.getRow() == 2*difference);
-
-				//capturing logic
-				}
-				else{
-					return(Math.abs(to.getColumn() - from.getColumn()) == 1 &&
-						(this.diffColorAt(to, b))&&
-							(to.getRow() - from.getRow() == difference));
-				}
-
-
-			default:
-				return false;
-		}
+		return this.getName().isValid(this, from, to, b);
 	}
 
 	/**
