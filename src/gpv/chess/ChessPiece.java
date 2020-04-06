@@ -76,12 +76,25 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 
 		switch(this.getName()){
 
+			case KNIGHT:
+				return (Math.abs(from.getColumn() - to.getColumn()) == 1 && Math.abs(from.getRow() - to.getRow())== 2)||
+						(Math.abs(from.getColumn() - to.getColumn()) == 2 && Math.abs(from.getRow() - to.getRow()) == 1);
+
+			case QUEEN:
+				//can move diagonally, vertically or horizontally
+				return validDiagMove(from, to, b) || validVertMove(from, to, b) || validHorizMove(from, to, b);
+
+			case BISHOP:
+				//can move diagonally
+				return validDiagMove(from, to, b);
+
 			case ROOK:
-				return from.validHorizMove(to, b);
+				//can move horizontally or vertically
+				return validVertMove(from, to, b) || validHorizMove(from, to, b);
 
 			case KING:
 				//check if castling attempt
-				if(from.validHorizMove(to, b) && Math.abs(from.getColumn()-to.getColumn()) == 2){
+				if(validHorizMove(from, to, b) && Math.abs(from.getColumn()-to.getColumn()) == 2){
 					//get the column location of where the rook should be based on the direction of castling
 					int rookCol = (to.getColumn() < from.getColumn())? 1 : b.getnColumns();
 					ChessPiece closeRook = (ChessPiece)b.getPieceAt(Coordinate.makeCoordinate(to.getRow(), rookCol));
@@ -168,5 +181,89 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 	 */
 	public boolean diffColorAt(Coordinate coordinate, Board board){
 		return !(board.getPieceAt(coordinate) == null || sameColorAt(coordinate, board));
+	}
+
+	/**
+	 * Returns a boolean as to whether a valid horizontal move can
+	 * be made between the two input coordinates
+	 * @param from the first input coordinate to check
+	 * @param to the second input coordinate to check
+	 * @param board the game board state
+	 * @return True if a valid move can be made, False if the coordinates are not on the same horizontal plane,
+	 * or there are other pieces in the way.
+	 */
+	public static boolean validHorizMove(Coordinate from, Coordinate to, Board board){
+		if(from.getRow() != to.getRow()){
+			return false;
+		}
+		int start, end;
+		if(from.getColumn() < to.getColumn()){
+			start = from.getColumn() + 1;
+			end = to.getColumn();
+		}else{
+			start = to.getColumn() + 1;
+			end = from.getColumn();
+		}
+		for(int i = start; i<end; i++){
+			if(board.getPieceAt(Coordinate.makeCoordinate(from.getRow(), i)) != null){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a boolean as to whether a valid vertical move can
+	 * be made between the two input coordinates
+	 * @param from the first input coordinate to check
+	 * @param to the second input coordinate to check
+	 * @param board the game board state
+	 * @return True if a valid move can be made, False if the coordinates are not on the same vertical plane,
+	 * or there are other pieces in the way.
+	 */
+	public static boolean validVertMove(Coordinate from, Coordinate to, Board board){
+		if(from.getColumn() != to.getColumn()){
+			return false;
+		}
+		int start, end;
+		if(from.getRow() < to.getRow()){
+			start = from.getRow() + 1;
+			end = to.getRow();
+		}else{
+			start = to.getRow() + 1;
+			end = from.getRow();
+		}
+		for(int i = start; i<end; i++){
+			if(board.getPieceAt(Coordinate.makeCoordinate(i, from.getColumn())) != null){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a boolean as to whether a valid diagonal move can
+	 * be made between the two input coordinates
+	 * @param from the first input coordinate to check
+	 * @param to the second input coordinate to check
+	 * @param board the game board state
+	 * @return True if a valid move can be made, False if the coordinates are not on the same diagonal,
+	 * or there are other pieces in the way.
+	 */
+	public static boolean validDiagMove(Coordinate from, Coordinate to, Board board){
+		if(Math.abs(from.getRow() - to.getRow()) == Math.abs(from.getColumn() - to.getColumn())){
+			int dr = (from.getRow() < to.getRow())? 1 : -1;
+			int dc = (from.getColumn() < to.getColumn())? 1 : -1;
+			int diff = Math.abs(from.getRow() - to.getRow());
+			int loops = 1;
+			while(loops < diff){
+				if(board.getPieceAt(Coordinate.makeCoordinate(from.getRow() + loops*dr, from.getColumn() + loops*dc)) != null){
+					return false;
+				}
+				loops++;
+			}
+			return true;
+		}
+		return false;
 	}
 }

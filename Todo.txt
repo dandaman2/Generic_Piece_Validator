@@ -11,7 +11,7 @@ X Make any move fails
 
 Valid Move Implementation=======================
 
-0.Pawn:
+0. Start Pawn:
  Deriving From: White_Pawn(2, 1) -> (3, 1): True
     > Must be in-bounds - isInBounds* (For All)
     > Must Move Position - hasMoved* (For All)
@@ -43,7 +43,7 @@ Valid Move Implementation=======================
             Black_Pawn(4, 4) -> White_Pawn(5, 5): False // Black Backwards capture
             Black_Pawn(5, 5) -> Black_Pawn(4, 4): False // Same-Team piece there
 
-9. King
+9. Start King
     Deriving From: White_King(1, 5) -> (2, 5)
         > 13. Can move one space in any direction (if space is empty or enemy piece)
             > Cannot move onto any same-color piece  - sameColorAt* (For All)
@@ -69,9 +69,9 @@ Valid Move Implementation=======================
             Black_King(8, 5) -> (8, 3): True // Castling other way with black
                  Black_Rook(8, 1)
 
-16. Rook
-    Deriving From: White_Rook(3, 8) -> White_Rook(8, 8)
-        > Can move in both vertical and horizontal directions
+16. Start Rook
+    Deriving From: White_Rook(3, 8) -> (8, 8)
+        > 19. Can move in both vertical and horizontal directions
             > 17. Horizontal (use existing)-> validHorizMove*
             White_Rook(1, 1) -> (1, 7): True // valid horizontal move one way
             White_Rook(1, 7) -> (1, 1): True // valid horizontal move another way
@@ -89,6 +89,57 @@ Valid Move Implementation=======================
                 White_Pawn(2, 4)
 
 
+20. Start Bishop
+    Deriving From: White_Bishop(1, 1) -> (3, 3)
+        > 23. Can move along diagonals
+            > Diagonal movement - validDiagMove*
+            > 22. Testing Stream to optimize directional testing
+             White_Bishop(5, 5) -> ((8, 2), (8, 8), (2, 8), (1, 1)): True // valid diagonal movement
+             White_Bishop(5, 5) -> ((8, 2), (8, 8), (2, 8), (1, 1)): False // invalid because of piece in the way
+                White_Pawn(4, 4)
+                White_Pawn(6, 4)
+                White_Pawn(6, 6)
+                White_Pawn(4, 6)
+             White_Bishop (5, 5) -> (7, 6): False // invalid Bishop movement
+
+
+24. Start Queen
+    Deriving From: White_Queen(5, 5) -> (8,0)
+        > 26. Can move in Horizontal, Vertical, and Diagonal Directions.
+        > Horizontal (use existing)-> validHorizMove*
+        > Vertical (use existing) -> validVertMove*
+        > Diagonal (use existing) -> validDiagMove*
+        > 25. Set up testing stream to optimize directional tests
+        White_Queen(5, 5) -> ((5, 1), (8, 5), (5, 8), (1, 5)): True // valid horizontal and vertical movements
+        White_Queen(5, 5) -> ((5, 1), (8, 5), (5, 8), (1, 5)): False // movement invalid because of piece in the way
+            White_Pawn(5, 2)
+            White_Pawn(7, 5)
+            White_Pawn(5, 7)
+            White_Pawn(2, 5)
+        White_Queen(5, 5) - >((8, 2), (8, 8), (2, 8), (1, 1)): True // valid diagonal movement
+        White_Queen(5, 5) -> ((8, 2), (8, 8), (2, 8), (1, 1)): False // movement invalid because of piece in the way
+            White_Pawn(4, 4)
+            White_Pawn(6, 4)
+            White_Pawn(6, 6)
+            White_Pawn(4, 6)
+        White_Queen(5, 5) -> (7, 6): False // invalid Queen movement
+
+
+25. Start Knight
+    Deriving From: White_Knight(1, 7) -> (3, 6)
+        > 28. Can move in an L-shape, where the number of column is 2 and rows 1 or vice versa.
+        > 26. Set up testing stream to optimize tests
+            White_Knight(5, 5) ->((6, 3), (7, 4), (7, 6), (6, 7), (4, 7), (3, 6), (3, 4), (4, 3)): True // valid knight movement
+            White_Knight(5, 5) -> ((5, 1), (8, 5), (5, 8), (1, 5)): False // invalid horizontal and vertical movements
+            White_Knight(5, 5) - >((8, 2), (8, 8), (2, 8), (1, 1)): False // invalid diagonal knight movement
+        > 27. Can move over any piece - (ignore in-the-way checks)
+            White_Knight(5, 5) ->((6, 3), (7, 4), (7, 6), (6, 7), (4, 7), (3, 6), (3, 4), (4, 3)): True // valid unimpaired knight movement
+                White_Pawn(5, 4)
+                White_Pawn(6, 5)
+                White_Pawn(5, 6)
+                White_Pawn(4, 5)
+
+
 Coordinate Functions=============================
     1. isInBounds(board)================ (used prior to any called method used in canMove)
         (2, 1).isInBounds(board): True
@@ -102,23 +153,6 @@ Coordinate Functions=============================
         (2, 1).differentLocation(3, 1): True
         (2, 1).differentLocation(2, 1): False
 
-    14. validHorizMove(coordinate, board)========================
-        (3, 1).validHorizMove((3, 8), board): True // Same Row one way
-        (3, 8).validHorizMove((3, 1), board): True // Same Row other way
-        (3, 1).validHorizMove((4, 1), board): False // Different Row
-        (5, 5).validHorizMove((5, 8), board): False //Piece in the way increasing
-            Black_Pawn(5, 7)
-         (5, 8).validHorizMove((5, 5), board): False //Piece in the way decreasing
-            Black_Pawn(5, 7)
-
-    18. validVertMove(coordinate, board)============================
-        (3, 1).validVertMove((5, 1), board): True // Same Col one way
-        (5, 1).validVertMove((3, 1), board): True // Same Col other way
-        (3, 1).validVertMove((3, 2), board): False // Different Col
-        (5, 5).validVertMove((8, 5), board) : False //Piece in the way increasing
-            Black_Pawn(7, 5)
-        (8, 5).validVertMove((5, 5), board) : False //Piece in the way decreasing
-            Black_Pawn(7, 5)
 
 
 ChessPiece Functions==================================
@@ -133,6 +167,32 @@ ChessPiece Functions==================================
         Black_Pawn(5, 5).sameColorAt((4, 5), board): False
 
 
+==(In NonPieceTests)=====================================
+    14. static validHorizMove(coordinate, coordinate, board)========================
+         validHorizMove((3, 1), (3, 8), board): True // Same Row one way
+         validHorizMove((3, 8), (3, 1), board): True // Same Row other way
+         validHorizMove((3, 1), (4, 1), board): False // Different Row
+         validHorizMove((5, 5), (5, 8), board): False //Piece in the way increasing
+             Black_Pawn(5, 7)
+         validHorizMove((5, 8), (5, 5), board): False //Piece in the way decreasing
+             Black_Pawn(5, 7)
 
+    18. static validVertMove(coordinate, coordinate, board)============================
+         validVertMove((3, 1), (5, 1), board): True // Same Col one way
+         validVertMove((5, 1), (3, 1), board): True // Same Col other way
+         validVertMove((3, 1), (3, 2), board): False // Different Col
+         validVertMove((5, 5), (8, 5), board) : False //Piece in the way increasing
+             Black_Pawn(7, 5)
+         validVertMove((8, 5), (5, 5), board) : False //Piece in the way decreasing
+             Black_Pawn(7, 5)
+
+    21. static validDiagMove(coordinate, coordinate, board)
+         validDiagMove((1, 1), (2, 2), board): True // Valid diagonal move one way
+         validDiagMove((3, 4), (1, 2), board): True // Valid diagonal move another way
+         validDiagMove((5, 5), (6, 7), board): False // Invalid diagonal move
+         validDiagMove((1, 1), (4, 4), board): False // Piece in the way
+             Black_Pawn(3, 3)
+         validDiagMove((1, 1), (4, 4), board): False // Piece in a different direction
+             Black_Pawn(3, 3)
 
 

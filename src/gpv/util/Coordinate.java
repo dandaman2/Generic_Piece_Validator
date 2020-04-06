@@ -124,42 +124,4 @@ public class Coordinate extends Point
 	public Boolean differentLocation(Coordinate coordinate){
 		return !(this.x == coordinate.x && this.y == coordinate.y);
 	}
-
-	/**
-	 * Returns a boolean as to whether a valid horizontal move can
-	 * be made from the given coordinate to the input coordinate.
-	 * @param coordinate the input coordinate to check
-	 * @return True if a valid move can be made, False if the input coordinate is not on the same horizontal plane,
-	 * or there are other pieces in the way.
-	 */
-	public boolean validHorizMove(Coordinate coordinate, Board board){
-		if(this.getRow() != coordinate.getRow()){
-			return false;
-		}
-		int start, end;
-		if(this.getColumn() < coordinate.getColumn()){
-			start = this.getColumn() + 1;
-			end = coordinate.getColumn();
-		}else{
-			start = coordinate.getColumn() + 1;
-			end = this.getColumn();
-		}
-		for(int i = start; i<end; i++){
-			if(board.getPieceAt(makeCoordinate(this.getRow(), i)) != null){
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Returns a boolean as to whether a valid vertical move can
-	 * be made from the given coordinate to the input coordinate.
-	 * @param coordinate the input coordinate to check
-	 * @return True if a valid move can be made, False if the input coordinate is not on the same vertical plane,
-	 * or there are other pieces in the way.
-	 */
-	public boolean validVertMove(Coordinate coordinate, Board board){
-		return false;
-	}
 }

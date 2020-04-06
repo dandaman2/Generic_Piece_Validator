@@ -201,7 +201,7 @@ class ChessPieceTests
 
 	//Check to make sure white pawn doesnt move sideways
 	@Test
-	void IllegalWhitePawnSideways() {
+	void illegalWhitePawnSideways() {
 		ChessPiece wp = factory.makePiece(WHITEPAWN);
 		board.putPieceAt(wp, makeCoordinate(5, 5));
 		assertFalse(wp.canMove(makeCoordinate(5, 5), makeCoordinate(5, 6), board));
@@ -209,7 +209,7 @@ class ChessPieceTests
 
 	//Check to make sure white pawn goes forward one row
 	@Test
-	void IllegalWhitePawnDiagonal() {
+	void illegalWhitePawnDiagonal() {
 		ChessPiece wp = factory.makePiece(WHITEPAWN);
 		board.putPieceAt(wp, makeCoordinate(5, 5));
 		assertFalse(wp.canMove(makeCoordinate(5, 5), makeCoordinate(6, 6), board));
@@ -217,7 +217,7 @@ class ChessPieceTests
 
 	//Check to make sure white pawn cannot go forwards 2 spots if not in starting position
 	@Test
-	void IllegalWhitePawnForwards2() {
+	void illegalWhitePawnForwards2() {
 		ChessPiece wp = factory.makePiece(WHITEPAWN);
 		wp.setHasMoved(); // Pawn has moved previously
 		board.putPieceAt(wp, makeCoordinate(5, 5));
@@ -250,7 +250,7 @@ class ChessPieceTests
 
 	//Check to make sure white pawn can only move in proper direction
 	@Test
-	void IllegalWhitePawnForwards1() {
+	void illegalWhitePawnForwards1() {
 		ChessPiece wp = factory.makePiece(WHITEPAWN);
 		board.putPieceAt(wp, makeCoordinate(7, 1));
 		assertFalse(wp.canMove(makeCoordinate(7, 1), makeCoordinate(6, 1), board));
@@ -275,7 +275,7 @@ class ChessPieceTests
 
 	//Check to make sure black pawn can only move in proper direction
 	@Test
-	void IllegalBlackPawnForwards1() {
+	void illegalBlackPawnForwards1() {
 		ChessPiece bp = factory.makePiece(BLACKPAWN);
 		board.putPieceAt(bp, makeCoordinate(6, 1));
 		assertFalse(bp.canMove(makeCoordinate(6, 1), makeCoordinate(7, 1), board));
@@ -283,7 +283,7 @@ class ChessPieceTests
 
 	//Check to make sure black pawn can only move in proper direction when in the starting location
 	@Test
-	void IllegalBlackPawnForwards2() {
+	void illegalBlackPawnForwards2() {
 		ChessPiece bp = factory.makePiece(BLACKPAWN);
 		board.putPieceAt(bp, makeCoordinate(6, 1));
 		assertFalse(bp.canMove(makeCoordinate(6, 1), makeCoordinate(8, 1), board));
@@ -364,16 +364,17 @@ class ChessPieceTests
 	//Tests for Kings//////////////////////////////////////////////////////////////////////
 
 	//Helper method to provide a stream of possible moves for a king that can move in any direction
+	//(KingRow, KingCol)
 	static Stream<Arguments> helperKingValues(){
 		return Stream.of(
-				Arguments.of(5, 5, 6, 5), //top
-				Arguments.of(5, 5, 6, 6), //top-r
-				Arguments.of(5, 5, 5, 6), //right
-				Arguments.of(5, 5, 4, 6), //bot-r
-				Arguments.of(5, 5, 4, 5), //bot
-				Arguments.of(5, 5, 4, 4), //bot-l
-				Arguments.of(5, 5, 5, 4), //left
-				Arguments.of(5, 5, 6, 4) //top-l
+				Arguments.of(6, 5), //top
+				Arguments.of(6, 6), //top-r
+				Arguments.of(5, 6), //right
+				Arguments.of(4, 6), //bot-r
+				Arguments.of(4, 5), //bot
+				Arguments.of(4, 4), //bot-l
+				Arguments.of(5, 4), //left
+				Arguments.of(6, 4) //top-l
 		);
 	}
 
@@ -388,10 +389,10 @@ class ChessPieceTests
 	//Check to make sure a king can move in any direction so long as it is on the board
 	@ParameterizedTest
 	@MethodSource("helperKingValues")
-	void kingMovementAnyDirection(int x1, int y1, int x2, int y2) {
+	void kingMovementAnyDirection(int x, int y) {
 		ChessPiece wk = factory.makePiece(WHITEKING);
-		board.putPieceAt(wk, makeCoordinate(x1, y1));
-		assertTrue(wk.canMove(makeCoordinate(x1, y1), makeCoordinate(x2, y2), board));
+		board.putPieceAt(wk, makeCoordinate(5, 5));
+		assertTrue(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
 	}
 
 	//Castling Tests
@@ -559,5 +560,208 @@ class ChessPieceTests
 		assertFalse(wr.canMove(makeCoordinate(7, 4), makeCoordinate(1, 4), board));
 	}
 
+
+	//Tests for Bishop//////////////////////////////////////////////////////////////////////
+
+	//Helper method to provide a stream of possible moves for a bishop that can move diagonally
+	//(BishopRow, BishopCol, PawnRow, PawnCol)
+	static Stream<Arguments> helperBishopValues(){
+		return Stream.of(
+				Arguments.of(8, 2, 7, 3), //top-l
+				Arguments.of(8, 8, 7, 7), //top-r
+				Arguments.of(2, 8, 3, 7), //bot-r
+				Arguments.of(1, 1, 2, 2) //bot-l
+		);
+	}
+
+	//Valid diagonal bishop movement
+	@ParameterizedTest
+	@MethodSource("helperBishopValues")
+	void validBishopMove(int x, int y) {
+		ChessPiece wb= factory.makePiece(WHITEBISHOP);
+		board.putPieceAt (wb, makeCoordinate(5, 5));
+		assertTrue(wb.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Diagonal bishop movement with piece in the way
+	@ParameterizedTest
+	@MethodSource("helperBishopValues")
+	void pieceInWayBishop(int x, int y, int pX, int pY) {
+		ChessPiece wb= factory.makePiece(WHITEBISHOP);
+		board.putPieceAt (wb, makeCoordinate(5, 5));
+		ChessPiece wp= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp, makeCoordinate(pX, pY));
+		assertFalse(wb.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Invalid movement for bishop
+	@Test
+	void invalidBishopMove() {
+		ChessPiece wb= factory.makePiece(WHITEBISHOP);
+		board.putPieceAt (wb, makeCoordinate(5, 5));
+		assertFalse(wb.canMove(makeCoordinate(5, 5), makeCoordinate(7, 6), board));
+	}
+
+
+	//Tests for Queen//////////////////////////////////////////////////////////////////////
+
+
+	//Helper method to provide a stream of possible moves for a queen that can move horizontally/vertically
+	//(QueenRow, QueenCol, PawnRow, PawnCol)
+	static Stream<Arguments> helperHorizVertQueenValues(){
+		return Stream.of(
+				Arguments.of(5, 1, 5, 2), //left
+				Arguments.of(8, 5, 7, 5), //top
+				Arguments.of(5, 8, 5, 7), //right
+				Arguments.of(1, 5, 2, 5) //bot
+		);
+	}
+
+	//Valid horizontal and vertical queen movement
+	@ParameterizedTest
+	@MethodSource("helperHorizVertQueenValues")
+	void validHorizVertlQueenMove(int x, int y) {
+		ChessPiece wq= factory.makePiece(WHITEQUEEN);
+		board.putPieceAt (wq, makeCoordinate(5, 5));
+		assertTrue(wq.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Horizontal and vertical queen movement with piece in the way
+	@ParameterizedTest
+	@MethodSource("helperHorizVertQueenValues")
+	void pieceInWayHorizVertQueen(int x, int y, int pX, int pY) {
+		ChessPiece wq= factory.makePiece(WHITEQUEEN);
+		board.putPieceAt (wq, makeCoordinate(5, 5));
+		ChessPiece wp= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp, makeCoordinate(pX, pY));
+		assertFalse(wq.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+
+	//Helper method to provide a stream of possible moves for a queen that can move diagonally
+	//(QueenRow, QueenCol, PawnRow, PawnCol)
+	static Stream<Arguments> helperDiagonalQueenValues(){
+		return Stream.of(
+				Arguments.of(8, 2, 7, 3), //top-l
+				Arguments.of(8, 8, 7, 7), //top-r
+				Arguments.of(2, 8, 3, 7), //bot-r
+				Arguments.of(1, 1, 2, 2) //bot-l
+		);
+	}
+
+	//Valid diagonal queen movement
+	@ParameterizedTest
+	@MethodSource("helperDiagonalQueenValues")
+	void validDiagonalQueenMove(int x, int y) {
+		ChessPiece wq= factory.makePiece(WHITEQUEEN);
+		board.putPieceAt (wq, makeCoordinate(5, 5));
+		assertTrue(wq.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Diagonal queen movement with piece in the way
+	@ParameterizedTest
+	@MethodSource("helperDiagonalQueenValues")
+	void pieceInWayDiagonalQueen(int x, int y, int pX, int pY) {
+		ChessPiece wq= factory.makePiece(WHITEQUEEN);
+		board.putPieceAt (wq, makeCoordinate(5, 5));
+		ChessPiece wp= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp, makeCoordinate(pX, pY));
+		assertFalse(wq.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Invalid movement for queen
+	@Test
+	void invalidQueenMove() {
+		ChessPiece wq= factory.makePiece(WHITEQUEEN);
+		board.putPieceAt (wq, makeCoordinate(5, 5));
+		assertFalse(wq.canMove(makeCoordinate(5, 5), makeCoordinate(7, 6), board));
+	}
+
+
+	//Tests for Knight//////////////////////////////////////////////////////////////////////
+
+	//Helper method to provide a stream of possible horizontal/vertical moves
+	//(KnightRow, KnightCol)
+	static Stream<Arguments> helperKnightValues(){
+		return Stream.of(
+				Arguments.of(6, 3),
+				Arguments.of(7, 4),
+				Arguments.of(7, 6),
+				Arguments.of(6, 7),
+				Arguments.of(4, 7),
+				Arguments.of(3, 6),
+				Arguments.of(3, 4),
+				Arguments.of(4, 3)
+		);
+	}
+
+	//Valid knight movement
+	@ParameterizedTest
+	@MethodSource("helperKnightValues")
+	void validKnightMove(int x, int y) {
+		ChessPiece wk= factory.makePiece(WHITEKNIGHT);
+		board.putPieceAt (wk, makeCoordinate(5, 5));
+		assertTrue(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Valid knight movement with piece in the way
+	@ParameterizedTest
+	@MethodSource("helperKnightValues")
+	void pieceInWayKnightMove(int x, int y) {
+		ChessPiece wk= factory.makePiece(WHITEKNIGHT);
+		board.putPieceAt (wk, makeCoordinate(5, 5));
+
+		//Places pawns at spots vertically and horizontally adjacent
+		ChessPiece wp1= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp1, makeCoordinate(5, 4));
+		ChessPiece wp2= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp2, makeCoordinate(6, 5));
+		ChessPiece wp3= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp3, makeCoordinate(5, 6));
+		ChessPiece wp4= factory.makePiece(WHITEPAWN);
+		board.putPieceAt (wp4, makeCoordinate(4, 5));
+
+		assertTrue(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Helper method to provide a stream of possible horizontal/vertical moves
+	//(KnightRow, KnightCol)
+	static Stream<Arguments> helperInvalidHorizVertKnightValues(){
+		return Stream.of(
+				Arguments.of(5, 1), //left
+				Arguments.of(8, 5), //top
+				Arguments.of(5, 8), //right
+				Arguments.of(1, 5) //bot
+		);
+	}
+
+	//Invalid horizontal and vertical knight movement
+	@ParameterizedTest
+	@MethodSource("helperInvalidHorizVertKnightValues")
+	void invalidHorizVertlKnightMove(int x, int y) {
+		ChessPiece wk= factory.makePiece(WHITEKNIGHT);
+		board.putPieceAt (wk, makeCoordinate(5, 5));
+		assertFalse(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
+
+	//Helper method to provide a stream of possible moves for a queen that can move diagonally
+	//(KnightRow, KnightCol)
+	static Stream<Arguments> helperInvalidDiagonalKnightValues(){
+		return Stream.of(
+				Arguments.of(8, 2), //top-l
+				Arguments.of(8, 8), //top-r
+				Arguments.of(2, 8), //bot-r
+				Arguments.of(1, 1) //bot-l
+		);
+	}
+
+	//Valid diagonal queen movement
+	@ParameterizedTest
+	@MethodSource("helperInvalidDiagonalKnightValues")
+	void invalidDiagonalKnightMove(int x, int y) {
+		ChessPiece wk= factory.makePiece(WHITEKNIGHT);
+		board.putPieceAt (wk, makeCoordinate(5, 5));
+		assertFalse(wk.canMove(makeCoordinate(5, 5), makeCoordinate(x, y), board));
+	}
 
 }
