@@ -162,10 +162,10 @@ Valid Move Implementation=======================
             (not placed on board)
 
 
-30. Refactor switch statement in hasMoved to Lambda assignment with
+30. Refactor switch statement in hasMoved to Lambda assignment in PieceName
     > 31. PieceName implements MoveRules functional interface
         >interface MoveRules{
-         	boolean isValidMove(ChessPiece piece, Coordinate from, Coordinate to, Board board);
+         	boolean isValid(ChessPiece piece, Coordinate from, Coordinate to, Board board);
          }
     > 32. Edit PieceName enums to have isValidMove method
     > 33. Assign code snippets for piece move logic to enums (PieceName)

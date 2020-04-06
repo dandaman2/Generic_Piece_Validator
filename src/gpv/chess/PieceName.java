@@ -16,25 +16,23 @@ import gpv.util.Board;
 import gpv.util.Coordinate;
 
 import static gpv.chess.ChessPiece.*;
-import static gpv.chess.PlayerColor.WHITE;
 
 /**
  * A functional interface which hold the method declaration for the isValid function
- *
+ * Used for assigning lambda functions to MoveRules instance variables within the PieceName enums
  */
 @FunctionalInterface
 interface MoveRules{
 	boolean isValid(ChessPiece piece, Coordinate from, Coordinate to, Board b);
 }
 
-
 /**
  * A simple enumeration of chess piece names. Mainly used in the ChessPieceDescriptor
  * @version Feb 23, 2020
  */
 public enum PieceName implements MoveRules {
-	PAWN(((piece, from, to, b) -> {
-		int difference = (piece.getColor() == WHITE)? 1 : -1;
+	PAWN((piece, from, to, b) -> {
+		int difference = (piece.getColor() == PlayerColor.WHITE)? 1 : -1;
 
 		//If not capturing
 		if(to.getColumn() == from.getColumn()) {
@@ -50,37 +48,38 @@ public enum PieceName implements MoveRules {
 			//Move forwards two if not previously moved
 			return !piece.hasMoved() && (to.getRow() - from.getRow() == 2*difference);
 
-			//capturing logic
+
 		}
 		else{
+			//capturing logic
 			return(Math.abs(to.getColumn() - from.getColumn()) == 1 &&
 					(piece.diffColorAt(to, b))&&
 					(to.getRow() - from.getRow() == difference));
 		}
-	})),
+	}),
 
-	ROOK(((piece, from, to, b) -> {
+	ROOK((piece, from, to, b) -> {
 		//can move horizontally or vertically
 		return validVertMove(from, to, b) || validHorizMove(from, to, b);
-	})),
+	}),
 
-	KNIGHT(((piece, from, to, b) -> {
+	KNIGHT((piece, from, to, b) -> {
 		//Can move with one column difference and a two row difference or vice versa.
 		return (Math.abs(from.getColumn() - to.getColumn()) == 1 && Math.abs(from.getRow() - to.getRow())== 2)||
 				(Math.abs(from.getColumn() - to.getColumn()) == 2 && Math.abs(from.getRow() - to.getRow()) == 1);
-	})),
+	}),
 
-	BISHOP(((piece, from, to, b) -> {
+	BISHOP((piece, from, to, b) -> {
 		//can move diagonally
 		return validDiagMove(from, to, b);
-	})),
+	}),
 
-	QUEEN(((piece, from, to, b) -> {
+	QUEEN((piece, from, to, b) -> {
 		//can move diagonally, vertically or horizontally
 		return validDiagMove(from, to, b) || validVertMove(from, to, b) || validHorizMove(from, to, b);
-	})),
+	}),
 
-	KING(((piece, from, to, b) -> {
+	KING((piece, from, to, b) -> {
 		//check if castling attempt
 		if(validHorizMove(from, to, b) && Math.abs(from.getColumn()-to.getColumn()) == 2){
 			//get the column location of where the rook should be based on the direction of castling
@@ -95,11 +94,15 @@ public enum PieceName implements MoveRules {
 
 		}
 		return Math.abs(to.getColumn() - from.getColumn()) < 2 && Math.abs(to.getRow() - from.getRow()) < 2;
-	}));
+	});
 
 	private MoveRules ruleset;
 
-	PieceName(MoveRules rules) {
+	/**
+	 * A private costructor for assigning move rules to a given PieceName
+	 * @param rules the runes to be assigned to the give PieceName (in lambda function format)
+	 */
+	private PieceName(MoveRules rules) {
 		this.ruleset = rules;
 	}
 
