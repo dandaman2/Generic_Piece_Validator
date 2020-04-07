@@ -847,5 +847,4 @@ class ChessPieceTests
 		assertFalse(wk.canMove(makeCoordinate(1, 5), makeCoordinate(2, 5), board));
 	}
 
-
 }

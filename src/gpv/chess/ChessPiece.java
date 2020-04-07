@@ -68,6 +68,14 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 	/*
 	 * @see gpv.Piece#canMove(gpv.util.Coordinate, gpv.util.Coordinate, gpv.util.Board)
 	 */
+
+	/**
+	 * Checks to see if the given piece can legally move from one coordinate to another
+	 * @param from The coordinate the piece is moving from
+	 * @param to the coordinate the piece is moving to
+	 * @param b the board state of the game
+	 * @return a boolean indicating if the move is valid for a given piece
+	 */
 	@Override
 	public boolean canMove(Coordinate from, Coordinate to, Board b)
 	{
@@ -81,7 +89,15 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 		if(!to.isInBounds(b) || !from.differentLocation(to) || this.sameColorAt(to, b))
 			return false;
 
-		return this.getName().isValid(this, from, to, b);
+
+		//Iterate through MoveSets to find proper one
+		for(MoveSet r: MoveSet.values()){
+			if(r.name().equals(this.getName().name())){
+				return r.isValid(this, from, to , b);
+			}
+		}
+		return false;
+		//return this.getName().isValid(this, from, to, b);
 	}
 
 	/**
@@ -126,89 +142,5 @@ public class ChessPiece implements Piece<ChessPieceDescriptor>
 	 */
 	public boolean diffColorAt(Coordinate coordinate, Board board){
 		return !(board.getPieceAt(coordinate) == null || sameColorAt(coordinate, board));
-	}
-
-	/**
-	 * Returns a boolean as to whether a valid horizontal move can
-	 * be made between the two input coordinates
-	 * @param from the first input coordinate to check
-	 * @param to the second input coordinate to check
-	 * @param board the game board state
-	 * @return True if a valid move can be made, False if the coordinates are not on the same horizontal plane,
-	 * or there are other pieces in the way.
-	 */
-	public static boolean validHorizMove(Coordinate from, Coordinate to, Board board){
-		if(from.getRow() != to.getRow()){
-			return false;
-		}
-		int start, end;
-		if(from.getColumn() < to.getColumn()){
-			start = from.getColumn() + 1;
-			end = to.getColumn();
-		}else{
-			start = to.getColumn() + 1;
-			end = from.getColumn();
-		}
-		for(int i = start; i<end; i++){
-			if(board.getPieceAt(Coordinate.makeCoordinate(from.getRow(), i)) != null){
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Returns a boolean as to whether a valid vertical move can
-	 * be made between the two input coordinates
-	 * @param from the first input coordinate to check
-	 * @param to the second input coordinate to check
-	 * @param board the game board state
-	 * @return True if a valid move can be made, False if the coordinates are not on the same vertical plane,
-	 * or there are other pieces in the way.
-	 */
-	public static boolean validVertMove(Coordinate from, Coordinate to, Board board){
-		if(from.getColumn() != to.getColumn()){
-			return false;
-		}
-		int start, end;
-		if(from.getRow() < to.getRow()){
-			start = from.getRow() + 1;
-			end = to.getRow();
-		}else{
-			start = to.getRow() + 1;
-			end = from.getRow();
-		}
-		for(int i = start; i<end; i++){
-			if(board.getPieceAt(Coordinate.makeCoordinate(i, from.getColumn())) != null){
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Returns a boolean as to whether a valid diagonal move can
-	 * be made between the two input coordinates
-	 * @param from the first input coordinate to check
-	 * @param to the second input coordinate to check
-	 * @param board the game board state
-	 * @return True if a valid move can be made, False if the coordinates are not on the same diagonal,
-	 * or there are other pieces in the way.
-	 */
-	public static boolean validDiagMove(Coordinate from, Coordinate to, Board board){
-		if(Math.abs(from.getRow() - to.getRow()) == Math.abs(from.getColumn() - to.getColumn())){
-			int dr = (from.getRow() < to.getRow())? 1 : -1;
-			int dc = (from.getColumn() < to.getColumn())? 1 : -1;
-			int diff = Math.abs(from.getRow() - to.getRow());
-			int loops = 1;
-			while(loops < diff){
-				if(board.getPieceAt(Coordinate.makeCoordinate(from.getRow() + loops*dr, from.getColumn() + loops*dc)) != null){
-					return false;
-				}
-				loops++;
-			}
-			return true;
-		}
-		return false;
 	}
 }

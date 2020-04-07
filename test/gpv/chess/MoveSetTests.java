@@ -14,6 +14,7 @@
 package gpv.chess;
 import static gpv.chess.ChessPiece.*;
 import static gpv.chess.ChessPieceDescriptor.*;
+import static gpv.chess.MoveSet.*;
 import static gpv.util.Coordinate.makeCoordinate;
 import static gpv.util.SquareInitializer.makeSquareInitializer;
 //import static org.junit.Assert.assertNotNull;
@@ -28,7 +29,7 @@ import gpv.util.Board;
 import org.junit.jupiter.api.*;
 import gpv.chess.*;
 
-class NonPieceTests {
+class MoveSetTests {
 
     private static ChessPieceFactory factory = null;
     private Board board;

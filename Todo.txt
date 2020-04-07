@@ -9,7 +9,9 @@ X Place multiple pieces on the board
 X Add hasMoved
 X Make any move fails
 
-Valid Move Implementation=======================
+Valid Move Implementation (all in ChessPieceTests)=======================
+
+Initially using a switch statement for piece movement logic
 
 0. Start Pawn:
  Deriving From: White_Pawn(2, 1) -> (3, 1): True
@@ -162,16 +164,17 @@ Valid Move Implementation=======================
             (not placed on board)
 
 
-30. Refactor switch statement in hasMoved to Lambda assignment in PieceName
-    > 31. PieceName implements MoveRules functional interface
+30. Refactor switch statement in hasMoved to Lambda assignment in MoveSet Class
+    > 31. MoveSet enums implements MoveRules functional interface
         >interface MoveRules{
          	boolean isValid(ChessPiece piece, Coordinate from, Coordinate to, Board board);
          }
-    > 32. Edit PieceName enums to have isValidMove method
-    > 33. Assign code snippets for piece move logic to enums (PieceName)
-    > 34. Run all test again to ensure functionality is consistent
+    > 32. Edit MoveRules enums to have isValidMove method
+        Running all tests again (and succeeding) proves that this method is consistent since it is used for retrieving all canMove constraint data
+    > 33. Assign code snippets for piece move logic to enums whose names corresponds to PieceNames
+    > 34. Run all test again to ensure functionality is consistent (Ensure Refactoring is Consistent)
 
-Coordinate Functions=============================
+Coordinate Functions (In CoordinateTests)=============================
     1. isInBounds(board)================ (used prior to any called method used in canMove)
         //For 8x8 board
         (2, 1).isInBounds(board): True
@@ -187,7 +190,7 @@ Coordinate Functions=============================
 
 
 
-ChessPiece Functions==================================
+ChessPiece Functions(In ChessPieceTests)==================================
     6. diffColorAt(coordinate, board)=========
         Black_Pawn(5, 5).diffColorAt(coordinate::White_Pawn(4, 5), board): True
         Black_Pawn(5, 5).diffColorAt(coordinate::Black_Pawn(4, 5). board): False
@@ -199,7 +202,7 @@ ChessPiece Functions==================================
         Black_Pawn(5, 5).sameColorAt((4, 5), board): False
 
 
-|->(In NonPieceTests)=====================================
+MoveSet Functions (In MoveSetTests)=====================================
     14. static validHorizMove(coordinate, coordinate, board)========================
          validHorizMove((3, 1), (3, 8), board): True // Same Row one way
          validHorizMove((3, 8), (3, 1), board): True // Same Row other way
